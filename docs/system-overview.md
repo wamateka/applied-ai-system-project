@@ -10,18 +10,21 @@ The original app tracked pet care tasks, activities, and scores, but it still le
 - Agentic workflow: the coach gathers context, retrieves evidence, drafts actions, self-checks them, scores confidence, and only then returns a plan.
 - Reliability system: tests, confidence scoring, audit logging, duplicate-task prevention, and safety guardrails are built into the workflow.
 
-## Short System Diagram
+## Embedded System Diagram
+
+The primary standalone diagram is in [system-diagram.md](./system-diagram.md). A shortened embedded view is included here so the architecture stays visible alongside the explanation.
 
 ```mermaid
 flowchart LR
     Human["Pet owner"] --> UI["Streamlit UI / CLI demo"]
-    UI --> Core["PawPal core services\npets, targets, activities, scores, tasks"]
+    UI --> Core["PawPal core services\npets, targets, activities,\nscores, tasks, conflicts"]
     UI --> Coach["AI Care Coach orchestrator"]
     Coach --> Snapshot["Context builder"]
     Snapshot --> Retriever["Retriever\nlocal knowledge base"]
     Retriever --> Planner["Planner\nrecommendations + summary"]
     Planner --> Verifier["Verifier\ncitations, duplicate checks,\nguardrails, confidence"]
-    Verifier --> UI
+    Verifier --> Output["Summary, findings,\nconfidence, task suggestions"]
+    Output --> UI
     Verifier --> Logger["Audit logger"]
     UI --> Review["Human review"]
     Review -->|Approve suggestions| Apply["Task application"]

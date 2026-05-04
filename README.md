@@ -32,6 +32,7 @@ The original app could tell you that a pet's score was low or that tasks were ov
 
 ```text
 app.py                               Streamlit application
+demo_walkthrough.py                  Scripted end-to-end demo with sample AI interactions
 main.py                              CLI demo, now including the AI coach
 pawpal_system.py                     Core domain models and services
 pawpal_ai.py                         Retrieval, planning, verification, confidence, logging
@@ -74,6 +75,14 @@ python main.py
 
 The CLI demo now prints a sample AI care-plan summary in addition to the original scheduling demo.
 
+### Scripted walkthrough
+
+```bash
+python demo_walkthrough.py
+```
+
+This walkthrough prints three end-to-end example inputs and AI responses, including task application and the emergency guardrail path.
+
 ## Test the project
 
 ```bash
@@ -92,7 +101,9 @@ The latest full run passed `40` tests.
 ## Documentation
 
 - [Documentation index](./docs/README.md)
+- [System diagram](./docs/system-diagram.md)
 - [System overview and diagram](./docs/system-overview.md)
+- [Demo walkthrough](./docs/demo-walkthrough.md)
 - [Reliability notes](./docs/reliability.md)
 - [Responsible AI reflection](./docs/responsible-ai-reflection.md)
 - [AI collaboration notes](./docs/ai-collaboration.md)
