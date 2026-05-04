@@ -6,3 +6,4 @@
 - [Reliability Notes](./reliability.md): automated tests, confidence scoring, logging, and manual review.
 - [Responsible AI Reflection](./responsible-ai-reflection.md): limitations, misuse risks, and testing takeaways.
 - [AI Collaboration Notes](./ai-collaboration.md): how AI helped during development, including one good and one flawed suggestion.
+- [Video walkthrouh Link](https://www.loom.com/share/03fbf7a1695349a58623b2a0075359e7)
