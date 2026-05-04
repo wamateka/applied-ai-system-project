@@ -1,0 +1,76 @@
+{
+  "documents": [
+    {
+      "id": "routine_consistency",
+      "title": "Routine consistency improves follow-through",
+      "species": "all",
+      "source": "PawPal Knowledge Base / Routine Planning Guide",
+      "tags": ["routine", "targets", "planning"],
+      "content": "Routine care plans work best when owners define clear daily targets, review them often, and turn repeated needs into recurring tasks. When a routine slips, the best recovery plan is usually a small number of repeatable actions instead of a large one-day catch-up."
+    },
+    {
+      "id": "feeding_regular_meals",
+      "title": "Regular meal timing supports consistent feeding habits",
+      "species": "all",
+      "source": "PawPal Knowledge Base / Feeding Basics",
+      "tags": ["feeding", "routine", "schedule"],
+      "content": "Feeding reminders are most useful when they match the owner's normal day. Logging meals and checking them against a daily target helps prevent both missed feedings and duplicate entries created during busy days."
+    },
+    {
+      "id": "dog_exercise_basics",
+      "title": "Dogs benefit from repeatable daily exercise blocks",
+      "species": "dog",
+      "source": "PawPal Knowledge Base / Dog Exercise Guide",
+      "tags": ["exercise", "walk", "dog", "planning"],
+      "content": "For many dogs, exercise goals are easier to sustain when the owner schedules them as recurring daily walks rather than one-off tasks. Short, consistent walks are usually easier to complete than an occasional long session, especially when the schedule is already crowded."
+    },
+    {
+      "id": "cat_enrichment_short_sessions",
+      "title": "Cats respond well to short enrichment sessions",
+      "species": "cat",
+      "source": "PawPal Knowledge Base / Cat Enrichment Guide",
+      "tags": ["exercise", "play", "cat", "enrichment"],
+      "content": "Cats often do better with shorter bursts of play and enrichment spread through the week. If the activity log shows inconsistent engagement, small recurring reminders can be more practical than a single long session."
+    },
+    {
+      "id": "grooming_maintenance",
+      "title": "Grooming tasks should be spaced before they become overdue",
+      "species": "all",
+      "source": "PawPal Knowledge Base / Grooming Maintenance Guide",
+      "tags": ["grooming", "hygiene", "interval"],
+      "content": "Grooming reminders are most reliable when they are scheduled slightly before the preferred interval is exceeded. When grooming is already overdue, the system should prioritize one concrete appointment or task instead of adding multiple catch-up reminders."
+    },
+    {
+      "id": "preventive_vet_followups",
+      "title": "Preventive vet care is easier to maintain with early reminders",
+      "species": "all",
+      "source": "PawPal Knowledge Base / Preventive Care Guide",
+      "tags": ["vet", "preventive", "schedule"],
+      "content": "Preventive vet follow-ups are usually better handled by scheduling one reminder in advance rather than waiting until the interval is exceeded. A system should flag overdue preventive visits clearly and encourage the owner to confirm the appointment with a professional."
+    },
+    {
+      "id": "schedule_spacing_and_overload",
+      "title": "Overloaded schedules reduce completion rates",
+      "species": "all",
+      "source": "PawPal Knowledge Base / Scheduling Guide",
+      "tags": ["scheduling", "conflicts", "overload", "timing"],
+      "content": "When several care tasks cluster into the same day or same time window, completion rates usually fall. A good planning assistant should surface duplicate tasks, identify timing clashes, and spread work across the week before adding new reminders."
+    },
+    {
+      "id": "recovery_after_missed_tasks",
+      "title": "Recover from missed tasks by clearing backlog first",
+      "species": "all",
+      "source": "PawPal Knowledge Base / Recovery Planning Guide",
+      "tags": ["recovery", "backlog", "prioritization", "planning"],
+      "content": "If tasks become overdue, the first step is to clear the most important backlog items before creating new optional reminders. Recovery plans should emphasize the next best action and avoid flooding the owner with too many simultaneous recommendations."
+    },
+    {
+      "id": "emergency_boundary",
+      "title": "Emergency symptoms require a human professional, not an app",
+      "species": "all",
+      "source": "PawPal Knowledge Base / Safety Boundary",
+      "tags": ["safety", "emergency", "guardrail"],
+      "content": "A routine-care assistant should not diagnose illness, medication problems, or emergencies. If a request mentions poisoning, seizures, collapse, breathing trouble, uncontrolled bleeding, or other urgent symptoms, the safe response is to stop automated reasoning and direct the owner to a veterinarian or emergency clinic."
+    }
+  ]
+}

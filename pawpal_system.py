@@ -320,6 +320,22 @@ class ActivityService:
             if a.pet_id == pet_id and a.date == activity_date
         ]
 
+    def get_recent(
+        self,
+        pet_id: str,
+        days: int,
+        today: Optional[date] = None,
+    ) -> list[Activity]:
+        """Return recent Activity records for the pet within the last `days` days."""
+        today = today or date.today()
+        cutoff = today - timedelta(days=max(0, days - 1))
+        matching = [
+            a
+            for a in self._activities.values()
+            if a.pet_id == pet_id and cutoff <= a.date <= today
+        ]
+        return sorted(matching, key=lambda a: (a.date, a.created_at), reverse=True)
+
     def get_latest_by_type(
         self, pet_id: str, activity_type: str
     ) -> Optional[Activity]:

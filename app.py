@@ -1,6 +1,7 @@
 import re
 import streamlit as st
 from datetime import date
+import pawpal_ai as pai
 import pawpal_system as ps
 
 st.set_page_config(page_title="PawPal+", page_icon="🐾", layout="centered")
@@ -24,10 +25,24 @@ if "care_score_service" not in st.session_state:
     )
 if "task_service" not in st.session_state:
     st.session_state.task_service = ps.TaskService()
+if "ai_coach" not in st.session_state:
+    st.session_state.ai_coach = pai.PawPalAICoach(
+        st.session_state.pet_service,
+        st.session_state.care_target_service,
+        st.session_state.activity_service,
+        st.session_state.care_score_service,
+        st.session_state.task_service,
+    )
 if "current_user" not in st.session_state:
     st.session_state.current_user = None
 if "selected_pet_id" not in st.session_state:
     st.session_state.selected_pet_id = None
+if "last_ai_plan" not in st.session_state:
+    st.session_state.last_ai_plan = None
+if "last_ai_plan_pet_id" not in st.session_state:
+    st.session_state.last_ai_plan_pet_id = None
+if "ai_last_apply_result" not in st.session_state:
+    st.session_state.ai_last_apply_result = None
 
 us   = st.session_state.user_service
 ps_  = st.session_state.pet_service
@@ -35,6 +50,7 @@ cts  = st.session_state.care_target_service
 acts = st.session_state.activity_service
 css  = st.session_state.care_score_service
 ts   = st.session_state.task_service
+ai_coach = st.session_state.ai_coach
 
 # ---------------------------------------------------------------------------
 # Header
@@ -90,6 +106,9 @@ with col_logout:
     if st.button("Logout"):
         st.session_state.current_user    = None
         st.session_state.selected_pet_id = None
+        st.session_state.last_ai_plan = None
+        st.session_state.last_ai_plan_pet_id = None
+        st.session_state.ai_last_apply_result = None
         st.rerun()
 
 st.divider()
@@ -97,7 +116,7 @@ st.divider()
 # ---------------------------------------------------------------------------
 # Top-level navigation
 # ---------------------------------------------------------------------------
-nav_pets, nav_schedule = st.tabs(["🐾 My Pets", "📅 Schedule"])
+nav_pets, nav_schedule, nav_ai = st.tabs(["🐾 My Pets", "📅 Schedule", "AI Care Coach"])
 
 # ===========================================================================
 # PETS TAB
@@ -638,3 +657,150 @@ with nav_schedule:
                                 })
             else:
                 st.info("No care targets match the current filters.")
+
+
+# ===========================================================================
+# AI CARE COACH TAB
+# ===========================================================================
+with nav_ai:
+    st.subheader("AI Care Coach")
+    st.caption(
+        "Grounded planning assistant for routine pet care. It retrieves local care guidance, "
+        "checks live app data, and only applies suggested tasks after you review them."
+    )
+
+    user_pets = us.get_pets(user.id)
+
+    if not user_pets:
+        st.info("Add pets in the **My Pets** tab first so the AI coach has context to work with.")
+    else:
+        pet_id_to_name = {pet.id: pet.name for pet in user_pets}
+        all_pet_ids = [pet.id for pet in user_pets]
+        default_pet_id = (
+            st.session_state.selected_pet_id
+            if st.session_state.selected_pet_id in all_pet_ids
+            else all_pet_ids[0]
+        )
+        default_index = all_pet_ids.index(default_pet_id)
+
+        ai_pet_id = st.selectbox(
+            "Choose a pet",
+            options=all_pet_ids,
+            index=default_index,
+            format_func=lambda pid: pet_id_to_name[pid],
+            key="ai_pet_id",
+        )
+        ai_prompt = st.text_area(
+            "What should the coach help with?",
+            value=(
+                "Explain what needs attention this week, summarize the biggest routine gaps, "
+                "and suggest the next best care tasks."
+            ),
+            height=120,
+            key="ai_prompt",
+        )
+        ai_horizon = st.slider(
+            "Planning horizon (days)",
+            min_value=3,
+            max_value=14,
+            value=7,
+            key="ai_horizon",
+        )
+
+        if st.button("Generate AI care plan", key="ai_generate_plan"):
+            try:
+                st.session_state.last_ai_plan = ai_coach.generate_plan(
+                    pet_id=ai_pet_id,
+                    question=ai_prompt,
+                    owner_pet_ids=all_pet_ids,
+                    horizon_days=ai_horizon,
+                )
+                st.session_state.last_ai_plan_pet_id = ai_pet_id
+                st.session_state.ai_last_apply_result = None
+            except Exception as e:
+                st.error(f"AI coach failed safely: {e}")
+
+        plan = (
+            st.session_state.last_ai_plan
+            if st.session_state.last_ai_plan_pet_id == ai_pet_id
+            else None
+        )
+
+        if plan:
+            if plan.status == "emergency":
+                st.error(plan.summary)
+            else:
+                st.success(plan.summary)
+
+            metric_col, rationale_col = st.columns([1, 3])
+            with metric_col:
+                st.metric("Confidence", f"{int(plan.confidence * 100)}%")
+            with rationale_col:
+                st.info(plan.confidence_rationale)
+
+            if plan.alerts:
+                with st.expander("Safety and validation notes", expanded=True):
+                    for alert in plan.alerts:
+                        st.warning(alert)
+
+            if plan.missing_data:
+                with st.expander("Missing or weak context"):
+                    for item in plan.missing_data:
+                        st.info(item)
+
+            st.markdown("### Findings")
+            for finding in plan.findings:
+                st.write(f"- {finding}")
+
+            st.markdown("### Recommended actions")
+            if plan.actions:
+                for action in plan.actions:
+                    due_text = action.due_date.isoformat() if action.due_date else "Review only"
+                    task_mode = (
+                        action.task_type.replace("_", " ").title()
+                        if action.task_type
+                        else "Guidance only"
+                    )
+                    with st.container(border=True):
+                        st.markdown(f"**{action.title}**")
+                        st.caption(
+                            f"Priority: {action.priority.title()} | Due: {due_text} | Action type: {task_mode}"
+                        )
+                        st.write(action.rationale)
+                        if action.evidence:
+                            st.caption("Evidence: " + " | ".join(action.evidence))
+                        if action.citations:
+                            st.caption("Knowledge refs: " + ", ".join(action.citations))
+            else:
+                st.info("The coach did not generate any actions for this request.")
+
+            suggested_tasks = [
+                action for action in plan.actions if action.task_type and action.due_date
+            ]
+            if suggested_tasks and plan.status != "emergency":
+                if st.button("Apply AI task suggestions", key="ai_apply_tasks"):
+                    apply_result = ai_coach.apply_task_suggestions(plan)
+                    st.session_state.ai_last_apply_result = apply_result
+                    st.rerun()
+
+            apply_result = st.session_state.ai_last_apply_result
+            if apply_result:
+                if apply_result.created_tasks:
+                    st.success(
+                        f"Added {len(apply_result.created_tasks)} AI-suggested task(s) to the schedule."
+                    )
+                for skipped_message in apply_result.skipped_messages:
+                    st.info(skipped_message)
+
+            st.markdown("### Retrieved knowledge")
+            for item in plan.retrieved_knowledge:
+                with st.expander(f"{item.title} ({item.doc_id})"):
+                    st.caption(
+                        f"Source: {item.source} | Match score: {item.score:.1f} | Matched terms: "
+                        + (", ".join(item.matched_terms) if item.matched_terms else "general fallback")
+                    )
+                    st.write(item.excerpt)
+        else:
+            st.info(
+                "Generate a plan to see an evidence-backed summary, confidence score, and optional task automation."
+            )

@@ -1,6 +1,9 @@
 from datetime import date, timedelta
 
+from pawpal_ai import PawPalAICoach
 from pawpal_system import (
+    ActivityService,
+    CareScoreService,
     UserService,
     PetService,
     CareTargetService,
@@ -14,6 +17,8 @@ from pawpal_system import (
 user_service   = UserService()
 pet_service    = PetService()
 target_service = CareTargetService()
+activity_service = ActivityService()
+score_service = CareScoreService(activity_service, target_service)
 task_service   = TaskService()
 
 TODAY = date.today()
@@ -243,6 +248,33 @@ def main() -> None:
             print(f"  [{c.conflict_type}] {c.message}")
     else:
         print("  No conflicts detected.")
+
+    # â”€â”€ 10. AI care coach â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    print("\n  " + "-" * 41)
+    print("  AI Care Coach demo")
+    print("  " + "-" * 41)
+    coach = PawPalAICoach(
+        pet_service=pet_service,
+        care_target_service=target_service,
+        activity_service=activity_service,
+        care_score_service=score_service,
+        task_service=task_service,
+    )
+    ai_plan = coach.generate_plan(
+        pet_id=max_.id,
+        question="Explain what needs attention this week and suggest the next best routine-care tasks.",
+        owner_pet_ids=all_pet_ids,
+        horizon_days=7,
+    )
+    print(f"  Summary    : {ai_plan.summary}")
+    print(f"  Confidence : {int(ai_plan.confidence * 100)}%")
+    if ai_plan.alerts:
+        for alert in ai_plan.alerts:
+            print(f"  Alert      : {alert}")
+    for action in ai_plan.actions:
+        due = action.due_date.isoformat() if action.due_date else "review only"
+        mode = action.task_type or "guidance"
+        print(f"  - {action.title} [{action.priority}] ({mode}, due {due})")
 
     print()
     print("=" * 45)
